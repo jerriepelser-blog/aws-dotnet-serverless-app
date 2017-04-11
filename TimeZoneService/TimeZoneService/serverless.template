@@ -1,0 +1,54 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Transform" : "AWS::Serverless-2016-10-31",
+  "Description" : "An AWS Serverless Application.",
+
+  "Resources" : {
+
+    "GetAll" : {
+      "Type" : "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "TimeZoneService::TimeZoneService.Functions::GetAllTimeZones",
+        "Runtime": "dotnetcore1.0",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaBasicExecutionRole" ],
+        "Events": {
+          "PutResource": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/zones",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    },
+	"GetSingle" : {
+      "Type" : "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "TimeZoneService::TimeZoneService.Functions::GetSingleTimeZone",
+        "Runtime": "dotnetcore1.0",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaBasicExecutionRole" ],
+        "Events": {
+          "PutResource": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/zones/{id}",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "Outputs" : {
+  }
+}
