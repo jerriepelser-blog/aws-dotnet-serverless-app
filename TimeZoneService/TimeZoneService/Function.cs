@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -39,25 +40,30 @@ namespace TimeZoneService
             string timeZoneId = null;
             if (request.PathParameters != null && request.PathParameters.ContainsKey("Id"))
                 timeZoneId = request.PathParameters["Id"];
-            else if (request.QueryStringParameters != null && request.QueryStringParameters.ContainsKey("Id"))
-                timeZoneId = request.QueryStringParameters["Id"];
 
-            context.Logger.LogLine($"Time Zone ID: {timeZoneId}");
-            //List<TimeZoneInfo> timeZones = new List<TimeZoneInfo>();
-
-            //foreach (var location in TzdbDateTimeZoneSource.Default.ZoneLocations)
-            //{
-            //    timeZones.Add(GetZoneInfo(location));
-            //}
-
-            var response = new APIGatewayProxyResponse
+            if (!String.IsNullOrEmpty(timeZoneId))
             {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = timeZoneId,
-                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } }
-            };
+                // Url decode the TZID
+                timeZoneId = WebUtility.UrlDecode(timeZoneId);
 
-            return response;
+                var location = TzdbDateTimeZoneSource.Default.ZoneLocations.FirstOrDefault(
+                    l => String.Compare(l.ZoneId, timeZoneId, StringComparison.OrdinalIgnoreCase) == 0);
+
+                if (location != null)
+                {
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.OK,
+                        Body = JsonConvert.SerializeObject(GetZoneInfo(location)),
+                        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                    };
+                }
+            }
+           
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.NotFound
+            };
         }
 
         private TimeZoneInfo GetZoneInfo(TzdbZoneLocation location)

@@ -40,7 +40,7 @@
           "PutResource": {
             "Type": "Api",
             "Properties": {
-              "Path": "/zones/{id}",
+              "Path": "/zones/{Id}",
               "Method": "GET"
             }
           }
